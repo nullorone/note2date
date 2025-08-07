@@ -4,7 +4,7 @@ import type { CalendarEvent } from "../types/CalendarEvent";
 const getCurrentYear = () => new Date().getFullYear();
 
 // Форматируем дату события, обновляя год, если он в прошлом
-const adjustEventDate = (date: string): string => {
+export const adjustEventDate = (date: string): {flat: string; preview: string} => {
     const [year, month, day] = date.split("-").map(Number);
     const currentYear = getCurrentYear();
 
@@ -22,7 +22,7 @@ const adjustEventDate = (date: string): string => {
     const m = String(correctedDate.getMonth() + 1).padStart(2, "0");
     const d = String(correctedDate.getDate()).padStart(2, "0");
 
-    return `${y}${m}${d}`;
+    return {flat: `${y}${m}${d}`, preview: `${d}-${m}-${y}`};
 };
 
 // Прибавляет минуты к времени
@@ -46,7 +46,7 @@ export const generateICS = (events: CalendarEvent[]): string => {
 
     const eventsICS = events
         .map((event, index) => {
-            const correctedDate = adjustEventDate(event.date);
+            const correctedDate = adjustEventDate(event.date).flat;
 
             const timeStart = event.time ? event.time.replace(":", "") : "1200";
             const timeEnd = event.time ? addMinutesToTime(event.time, 15) : "1215";

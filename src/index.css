@@ -1,3 +1,5 @@
+@import "tailwindcss";
+
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -24,10 +26,13 @@ a:hover {
 
 body {
   margin: 0;
+  padding: 0;
   display: flex;
-  place-items: center;
+  align-items: center;
+  justify-content: center;
   min-width: 320px;
   min-height: 100vh;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
 h1 {
@@ -35,14 +40,14 @@ h1 {
   line-height: 1.1;
 }
 
-button {
+button:not(.bg-blue-400) {
   border-radius: 8px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
-  background-color: #1a1a1a;
+  /*background-color: #1a1a1a;*/
   cursor: pointer;
   transition: border-color 0.25s;
 }
@@ -66,3 +71,23 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+/* Мобильная адаптация */
+@media (max-width: 640px) {
+  .max-w-md {
+    max-width: 100%;
+  }
+
+  .text-xl {
+    font-size: 1.25rem;
+  }
+
+  .text-sm {
+    font-size: 0.875rem;
+  }
+}
+
+input[type='file'] {
+  display: none;
+}
+

@@ -6,57 +6,83 @@ interface ImageUploaderProps {
 
 const ImageUploader: React.FC<ImageUploaderProps> = ({ onImageUpload }) => {
     const [preview, setPreview] = useState<string | null>(null);
-    const [fileName, setFileName] = useState<string | null>(null);
+    const [dragActive, setDragActive] = useState(false);
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const file = e.target.files?.[0] || null;
+    const handleDrag = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        if (e.type === "dragenter" || e.type === "dragover") {
+            setDragActive(true);
+        } else if (e.type === "dragleave") {
+            setDragActive(false);
+        }
+    };
 
-        if (file) {
-            setFileName(file.name);
+    const handleDrop = (e: React.DragEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setDragActive(false);
 
+        const file = e.dataTransfer.files?.[0] || null;
+        if (file && file.type.startsWith("image/")) {
             const reader = new FileReader();
             reader.onload = (event) => {
                 setPreview(event.target?.result as string);
+                onImageUpload(file);
             };
             reader.readAsDataURL(file);
+        }
+    };
 
-            onImageUpload(file);
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0] || null;
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                setPreview(event.target?.result as string);
+                onImageUpload(file);
+            };
+            reader.readAsDataURL(file);
         } else {
             setPreview(null);
-            setFileName(null);
             onImageUpload(null);
         }
     };
 
     return (
-        <div className="image-uploader">
-            <input
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                id="file-upload"
-                className="hidden"
-            />
-            <label htmlFor="file-upload" className="cursor-pointer">
-                <div className="border border-dashed border-gray-400 p-4 rounded text-center">
-                    {preview ? (
-                        <img
-                            width={640}
-                            height={420}
-                            src={preview}
-                            alt="Превью"
-                            className="max-h-64 mx-auto mb-2 rounded"
-                        />
-                    ) : (
-                        <p>Выберите изображение</p>
-                            )}
-                            <p className="text-sm text-gray-500 mt-1">{fileName || "Формат: JPG, PNG"}</p>
-                            <button className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
-                                Загрузить изображение
-                            </button>
-                    </div>
-            </label>
-        </div>
+        <div
+            onDragEnter={handleDrag}
+            onDragOver={handleDrag}
+            onDragLeave={handleDrag}
+            onDrop={handleDrop}
+            className={`border-2 border-dashed rounded-lg p-4 text-center transition
+            ${dragActive ? "border-purple-500 bg-purple-50" : "border-gray-300 hover:bg-gray-50"}
+          `}
+        >
+            {preview ? (
+                <img width={640} height={320} src={preview} alt="Превью" className="max-h-100 w-full object-contain mx-auto rounded" />
+            ) : (
+                <>
+                    <p className="mb-2">Перетащите изображение или нажмите, чтобы выбрать</p>
+                    <p className="text-sm text-gray-500 mb-2">Поддерживаемые форматы: JPG, PNG</p>
+                </>
+            )}
+
+        <input
+            type="file"
+            accept="image/*"
+            onChange={handleChange}
+            id="file-upload"
+            className="hidden"
+        />
+
+        <label
+            htmlFor="file-upload"
+            className="inline-block mt-2 px-4 py-2 bg-gray-200 rounded hover:bg-gray-300 cursor-pointer"
+        >
+            Выбрать файл
+        </label>
+    </div>
     );
 };
 
